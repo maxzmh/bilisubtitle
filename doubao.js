@@ -1,10 +1,7 @@
-const fs = require("fs");
 const Base64 = require("./base64.js");
-const { createFileWithPath } = require("./utils.js");
 
-exports.perfectSubtitle = async (subTitle, title, category) => {
+exports.perfectSubtitle = async (subTitle) => {
   const text = "你是一名语文老师请添加标点符号:" + subTitle;
-  console.log(subTitle);
   const payload = JSON.stringify({
     event_type: 1,
     message: {
@@ -52,9 +49,6 @@ exports.perfectSubtitle = async (subTitle, title, category) => {
   );
 
   const reader = res.body?.pipeThrough(new TextDecoderStream()).getReader();
-  const path = `/Users/changqing/Desktop/subtitle/scripts/${category}/${title}.docx`;
-
-  createFileWithPath(path);
   let resultText = "";
 
   while (reader) {
@@ -63,13 +57,12 @@ exports.perfectSubtitle = async (subTitle, title, category) => {
       break;
     }
     const dataBlocks = value.split("data:");
-    // 将 str 写入 /Users/changqing/Desktop 目录下  txt 文件
-    // await fs.promises.mkdir(dir, { recursive: true });
+
     try {
       resultText = JSON.parse(dataBlocks[1]).message.tts_content;
       console.log("正在重写!!");
     } catch (error) {}
   }
-  await fs.promises.writeFile(path, resultText);
-  console.log("写入成功!!");
+
+  return resultText;
 };

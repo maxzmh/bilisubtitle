@@ -1,4 +1,6 @@
 const { perfectSubtitle } = require("./doubao");
+const fs = require("fs");
+const { createFileWithPath } = require("./utils.js");
 
 exports.fetchBiliSubtitle = async (bvid) => {
   const {
@@ -29,7 +31,7 @@ exports.fetchBiliSubtitle = async (bvid) => {
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-site",
         cookie:
-          "header_theme_version=CLOSE; CURRENT_BLACKGAP=0; buvid4=0AB028BC-3595-F2FE-64DF-1B4E0191E7A508541-023080618-ZuhD6dxC%2BOIGrr71yHriqw%3D%3D; buvid_fp_plain=undefined; enable_web_push=DISABLE; DedeUserID=354922193; DedeUserID__ckMd5=b6112e5ef321d162; FEED_LIVE_VERSION=V_WATCHLATER_PIP_WINDOW3; buvid3=70FECEA9-6DAF-DD79-0EBF-BDB46D6BE2A688144infoc; b_nut=1723107488; _uuid=7CAD4105B-713C-BE6F-B1910-DC1733318910F89101infoc; CURRENT_QUALITY=80; rpdid=|(u|JRkukRkR0J'u~klk~u~|~; hit-dyn-v2=1; CURRENT_FNVAL=4048; fingerprint=6c232a9308194d40a82be608a3122c62; PVID=1; buvid_fp=6c232a9308194d40a82be608a3122c62; home_feed_column=5; SESSDATA=e9a70001%2C1745634925%2C4efba%2Aa2CjATRptnh8FCVilXxiDaCKdfMpOu0lfTFhFF4fpycQeSxfsBuL8_-FpdQ4hn8KcfJbgSVjdUbU5LZU15MmFyMUhKRnNrZlZzQUpBRXYyWGlIMWFCRzJzOWsyTm9rRzR1QjlfM3ZQTmhQRTlrZlhrNzBMMEZPLUVHZnhsRkhsSmswSjdqR2JWUXV3IIEC; bili_jct=6e768df9e8b239e89e2bae2a430258c4; bili_ticket=eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzAzNDY2NjYsImlhdCI6MTczMDA4NzQwNiwicGx0IjotMX0._nW4hWF4Fs8kAehS6ZfehqY2uazbSy_zZmUiDSlD-bg; bili_ticket_expires=1730346606; b_lsid=173A5F18_192DBB539F0; browser_resolution=1920-1088; bp_t_offset_354922193=993960839381778432; sid=ozuw8n58",
+          "header_theme_version=CLOSE; CURRENT_BLACKGAP=0; buvid4=0AB028BC-3595-F2FE-64DF-1B4E0191E7A508541-023080618-ZuhD6dxC%2BOIGrr71yHriqw%3D%3D; buvid_fp_plain=undefined; enable_web_push=DISABLE; DedeUserID=354922193; DedeUserID__ckMd5=b6112e5ef321d162; FEED_LIVE_VERSION=V_WATCHLATER_PIP_WINDOW3; buvid3=70FECEA9-6DAF-DD79-0EBF-BDB46D6BE2A688144infoc; b_nut=1723107488; _uuid=7CAD4105B-713C-BE6F-B1910-DC1733318910F89101infoc; CURRENT_QUALITY=80; rpdid=|(u|JRkukRkR0J'u~klk~u~|~; hit-dyn-v2=1; CURRENT_FNVAL=4048; fingerprint=6c232a9308194d40a82be608a3122c62; PVID=1; buvid_fp=6c232a9308194d40a82be608a3122c62; OUTFOX_SEARCH_USER_ID_NCOO=360096520.65005505; b_lsid=81192462_192E13EAAB6; bp_t_offset_354922193=994359816073773056; SESSDATA=26eae48e%2C1745907836%2C179ca%2Aa2CjAFmjLMV8cA_kMhRj3wvhqL4qJWYLxG-OCW1s8O50mxrS0HXULyPscmk4rzycaRag8SVmktN3dwRjZvaXpqRThnQVB3ajhVWFhZZ1UzY3JCWENpRGFfNEIxemd3di1JWEJmdlByNHlIVW1LQ0JlVC04bS1HQzNkR3pCN0xhRUtfWmQ2a3BMTlZ3IIEC; bili_jct=d83826a2f0d185aaa0984b9d12e15e69; bili_ticket=eyJhbGciOiJIUzI1NiIsImtpZCI6InMwMyIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MzA2MTUwNDAsImlhdCI6MTczMDM1NTc4MCwicGx0IjotMX0.IO6dRIdenBSUUvvFHTzgLBf-XFrjNQXNtxQVP3RM-ac; bili_ticket_expires=1730614980; sid=4nbsvwqx; home_feed_column=4; browser_resolution=977-1088",
       },
       body: null,
       method: "GET",
@@ -40,6 +42,35 @@ exports.fetchBiliSubtitle = async (bvid) => {
   const { body } = await fetch(`https:${url}`, {
     method: "GET",
   }).then((res) => res.json());
-  const str = body.map((i) => i.content).join(" ");
-  await perfectSubtitle(str, title, name);
+  const subtitleList = [];
+  let i = 0;
+  body.forEach((element) => {
+    if (subtitleList[i]) {
+      if (subtitleList[i].length > 4000) {
+        i += 1;
+        subtitleList[i] = "";
+      }
+    } else {
+      subtitleList[i] = "";
+    }
+
+    subtitleList[i] += " " + element.content;
+  });
+
+  let content = await serialLoopRequests(subtitleList);
+
+  const path = `/Users/changqing/Desktop/subtitle/scripts/${name}/${title}.docx`;
+  createFileWithPath(path);
+
+  await fs.promises.writeFile(path, content);
+  console.log("写入成功!!");
 };
+
+async function serialLoopRequests(arr) {
+  let result = "";
+  for (const item of arr) {
+    const res = await perfectSubtitle(item);
+    result += res + "\n";
+  }
+  return result;
+}

@@ -1,3 +1,3 @@
 const { fetchBiliSubtitle } = require("./bilibili");
 
-fetchBiliSubtitle("BV1iPCUY2E89");
+fetchBiliSubtitle("BV1F3yQYYE8r");
