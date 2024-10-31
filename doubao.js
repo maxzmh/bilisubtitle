@@ -1,11 +1,11 @@
 const Base64 = require("./base64.js");
 
 exports.perfectSubtitle = async (subTitle) => {
-  const text = "你是一名语文老师请添加标点符号:" + subTitle;
+  const text = "你是一名语文老师请添加文本标点符号: " + "\n" + subTitle;
   const payload = JSON.stringify({
     event_type: 1,
     message: {
-      conversation_id: "0",
+      conversation_id: "1",
       section_id: "0",
       local_message_id: "0dcd05c2-639d-4838-8f08-789976488960",
       content_type: 1,
@@ -19,7 +19,7 @@ exports.perfectSubtitle = async (subTitle) => {
         browser_plugin_info:
           '{"skill_name":"rewrite","template_type":"tone","tone":"正式的"}',
       },
-      local_conversation_id: "0",
+      local_conversation_id: "1",
       bot_id: "7338286299411103781",
     },
   });
@@ -50,7 +50,7 @@ exports.perfectSubtitle = async (subTitle) => {
 
   const reader = res.body?.pipeThrough(new TextDecoderStream()).getReader();
   let resultText = "";
-
+  console.log("正在重写!!");
   while (reader) {
     const { value, done } = await reader.read();
     if (done) {
@@ -60,9 +60,8 @@ exports.perfectSubtitle = async (subTitle) => {
 
     try {
       resultText = JSON.parse(dataBlocks[1]).message.tts_content;
-      console.log("正在重写!!");
     } catch (error) {}
   }
-
+  console.log("重写成功!!");
   return resultText;
 };
