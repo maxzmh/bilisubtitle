@@ -2,7 +2,12 @@ const { perfectSubtitle } = require("./doubao");
 
 exports.fetchBiliSubtitle = async (bvid) => {
   const {
-    data: { aid, cid, title },
+    data: {
+      aid,
+      cid,
+      title,
+      owner: { name },
+    },
   } = await fetch(
     `https://api.bilibili.com/x/web-interface/view?bvid=${bvid}`,
     {
@@ -36,5 +41,5 @@ exports.fetchBiliSubtitle = async (bvid) => {
     method: "GET",
   }).then((res) => res.json());
   const str = body.map((i) => i.content).join(" ");
-  await perfectSubtitle(str, title);
+  await perfectSubtitle(str, title, name);
 };

@@ -2,9 +2,9 @@ const fs = require("fs");
 const Base64 = require("./base64.js");
 const { createFileWithPath } = require("./utils.js");
 
-exports.perfectSubtitle = async (subTitle, title) => {
+exports.perfectSubtitle = async (subTitle, title, category) => {
   const text = "你是一名语文老师请添加标点符号:" + subTitle;
-
+  console.log(subTitle);
   const payload = JSON.stringify({
     event_type: 1,
     message: {
@@ -52,7 +52,7 @@ exports.perfectSubtitle = async (subTitle, title) => {
   );
 
   const reader = res.body?.pipeThrough(new TextDecoderStream()).getReader();
-  const path = `/Users/changqing/Desktop/subtitle/scripts/${title}.docx`;
+  const path = `/Users/changqing/Desktop/subtitle/scripts/${category}/${title}.docx`;
 
   createFileWithPath(path);
   let resultText = "";
